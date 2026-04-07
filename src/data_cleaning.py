@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 def clean_pihps_data():
-    print("--- 1. Memulai Cleaning Data PIHPS (Dalvyn) ---")
+    print("--- 1. Memulai Cleaning Data PIHPS (Daffa) ---")
     # Perbaikan path: Langsung ke folder data karena kita jalankan dari root
     file_path = 'data/raw/harga_pangan_3provinsi.csv'
     
@@ -13,16 +13,36 @@ def clean_pihps_data():
     try:
         df = pd.read_csv(file_path)
         
+        # [PERBAIKAN 1] Standarisasi nama kolom ke bahasa Inggris (lowercase)
+        df.columns = df.columns.str.lower().str.strip()
+        kolom_mapping = {
+            'tanggal': 'date',
+            'provinsi': 'province',
+            'harga': 'price',
+            'komoditas': 'commodity'
+        }
+        df = df.rename(columns=kolom_mapping)
+        
         # 1. Handle missing values
-        df = df.dropna(subset=['price'])
+        if 'price' in df.columns:
+            df = df.dropna(subset=['price'])
         
         # 2. Hapus duplikasi
         df = df.drop_duplicates()
 
-        # 3. Standarisasi tanggal
+        # 3. [PERBAIKAN 2] Standarisasi tanggal yang lebih fleksibel
         if 'date' in df.columns:
-            df['date'] = pd.to_datetime(df['date'], format='%d/%m/%Y', errors='coerce').dt.strftime('%Y-%m-%d')
-        
+            # Hapus baris yang tanggalnya kosong sebelum di-parse
+            df = df.dropna(subset=['date'])
+            # Gunakan format='mixed' agar Pandas otomatis menebak format tanggal (DD/MM/YYYY atau YYYY-MM-DD)
+            df['date'] = pd.to_datetime(df['date'], format='mixed', errors='coerce')
+            # Buang data yang gagal jadi tanggal (NaT)
+            df = df.dropna(subset=['date'])
+            # Ubah ke string baku YYYY-MM-DD
+            df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+        else:
+            print("⚠️ PERINGATAN: Kolom tanggal tidak ditemukan di data raw!")
+
         # 4 & 5. Standarisasi provinsi & komoditas
         if 'province' in df.columns:
             df['province'] = df['province'].str.title().str.strip()
@@ -39,9 +59,11 @@ def clean_pihps_data():
         os.makedirs(output_dir, exist_ok=True)
         output_path = f'{output_dir}/cleaned_harga_pangan.csv'
         df.to_csv(output_path, index=False)
-        print(f"✅ Data PIHPS berhasil dibersihkan dan disimpan di: {output_path}\n")
+        print(f"✅ Data PIHPS berhasil dibersihkan dan disimpan di: {output_path}")
+        print(f"✅ Kolom yang tersedia saat ini: {list(df.columns)}\n") # Tambahan untuk memastikan kolom lengkap
     except Exception as e:
         print(f"❌ Error saat memproses data PIHPS: {e}\n")
+
 
 def clean_worldbank_data():
     print("--- 2. Memulai Cleaning Data World Bank (Zalfa) ---")
