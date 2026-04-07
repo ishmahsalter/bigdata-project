@@ -18,6 +18,17 @@ venv/
 *.log
 logs/
 
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# --- Aturan Khusus Proyek Big Data Tim ---
+# Abaikan data mentah agar tidak memberatkan GitHub
+data/raw/
+
+# Abaikan file cache sistem operasi (terutama jika ada yang pakai Mac)
+.DS_Store
 # OS
 .DS_Store
 Thumbs.db
