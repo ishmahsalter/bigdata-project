@@ -1,95 +1,90 @@
 import pandas as pd
 import os
 
-def clean_pihps_data():
-    print("--- 1. Memulai Cleaning Data PIHPS (Daffa) ---")
-    # Perbaikan path: Langsung ke folder data karena kita jalankan dari root
-    file_path = 'data/raw/harga_pangan_3provinsi.csv'
+# Konfigurasi Folder
+RAW_DIR = 'data/raw'
+CLEANED_DIR = 'data/cleaned'
+os.makedirs(CLEANED_DIR, exist_ok=True)
+
+def clean_standard_data(file_name, indicator_name):
+    """Fungsi untuk membersihkan data standar (CPI, GDP, dll)"""
+    path = os.path.join(RAW_DIR, file_name)
+    if not os.path.exists(path):
+        return
     
-    if not os.path.exists(file_path):
-        print(f"❌ File {file_path} tidak ditemukan. Lewati cleaning PIHPS.\n")
+    print(f"Cleaning: {file_name}...")
+    df = pd.read_csv(path)
+    
+    # 1. Handling Anomali: Pastikan kolom tahun dan nilai adalah angka
+    df['tahun'] = pd.to_numeric(df['tahun'], errors='coerce')
+    df['nilai'] = pd.to_numeric(df['nilai'], errors='coerce')
+    
+    # 2. Hapus data yang kosong (NaN) setelah konversi
+    df = df.dropna(subset=['tahun', 'nilai'])
+    
+    # 3. Rename kolom 'nilai' agar spesifik
+    df = df.rename(columns={'nilai': f'nilai_{indicator_name}'})
+    
+    # 4. Pastikan tahun adalah integer (bukan float)
+    df['tahun'] = df['tahun'].astype(int)
+    
+    # Simpan hasil
+    output_path = os.path.join(CLEANED_DIR, f'cleaned_{file_name}')
+    df.to_csv(output_path, index=False)
+    print(f"Berhasil menyimpan ke: {output_path}")
+
+def clean_food_price_data():
+    """Fungsi khusus untuk harga pangan (Agregasi Rata-rata)"""
+    file_name = 'harga_pangan_3provinsi.csv'
+    path = os.path.join(RAW_DIR, file_name)
+    
+    if not os.path.exists(path):
+        print(f"File {file_name} tidak ditemukan.")
         return
 
-    try:
-        df = pd.read_csv(file_path)
-        
-        # [PERBAIKAN 1] Standarisasi nama kolom ke bahasa Inggris (lowercase)
-        df.columns = df.columns.str.lower().str.strip()
-        kolom_mapping = {
-            'tanggal': 'date',
-            'provinsi': 'province',
-            'harga': 'price',
-            'komoditas': 'commodity'
-        }
-        df = df.rename(columns=kolom_mapping)
-        
-        # 1. Handle missing values
-        if 'price' in df.columns:
-            df = df.dropna(subset=['price'])
-        
-        # 2. Hapus duplikasi
-        df = df.drop_duplicates()
+    print(f"Cleaning & Aggregating: {file_name}...")
+    df = pd.read_csv(path)
+    
+    # DEBUG: Mari kita lihat nama kolom aslinya jika error lagi
+    # print(df.columns) 
 
-        # 3. [PERBAIKAN 2] Standarisasi tanggal yang lebih fleksibel
-        if 'date' in df.columns:
-            # Hapus baris yang tanggalnya kosong sebelum di-parse
-            df = df.dropna(subset=['date'])
-            # Gunakan format='mixed' agar Pandas otomatis menebak format tanggal (DD/MM/YYYY atau YYYY-MM-DD)
-            df['date'] = pd.to_datetime(df['date'], format='mixed', errors='coerce')
-            # Buang data yang gagal jadi tanggal (NaT)
-            df = df.dropna(subset=['date'])
-            # Ubah ke string baku YYYY-MM-DD
-            df['date'] = df['date'].dt.strftime('%Y-%m-%d')
-        else:
-            print("⚠️ PERINGATAN: Kolom tanggal tidak ditemukan di data raw!")
+    # Solusi: Paksa kolom kedua menjadi 'nilai' jika namanya bukan 'nilai'
+    # Asumsinya formatnya: [provinsi, tahun, nilai] atau [tahun, provinsi, nilai]
+    if 'nilai' not in df.columns:
+        # Kita ambil kolom terakhir sebagai kolom nilai (biasanya harga ada di akhir)
+        col_nilai = df.columns[-1]
+        df = df.rename(columns={col_nilai: 'nilai'})
+        print(f"Kolom '{col_nilai}' dideteksi sebagai kolom nilai.")
 
-        # 4 & 5. Standarisasi provinsi & komoditas
-        if 'province' in df.columns:
-            df['province'] = df['province'].str.title().str.strip()
-        if 'commodity' in df.columns:
-            df['commodity'] = df['commodity'].str.title().str.strip()
+    # Bersihkan anomali tipe data
+    df['tahun'] = pd.to_numeric(df['tahun'], errors='coerce')
+    df['nilai'] = pd.to_numeric(df['nilai'], errors='coerce')
+    df = df.dropna(subset=['tahun', 'nilai'])
 
-        # 6. Normalisasi kolom
-        kolom_target = ['date', 'province', 'price']
-        kolom_tersedia = [kol for kol in kolom_target if kol in df.columns]
-        df = df[kolom_tersedia]
-
-        # 7. Simpan data bersih
-        output_dir = 'data/cleaned'
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = f'{output_dir}/cleaned_harga_pangan.csv'
-        df.to_csv(output_path, index=False)
-        print(f"✅ Data PIHPS berhasil dibersihkan dan disimpan di: {output_path}")
-        print(f"✅ Kolom yang tersedia saat ini: {list(df.columns)}\n") # Tambahan untuk memastikan kolom lengkap
-    except Exception as e:
-        print(f"❌ Error saat memproses data PIHPS: {e}\n")
-
-
-def clean_worldbank_data():
-    print("--- 2. Memulai Cleaning Data World Bank (Zalfa) ---")
-    wb_files = ['cpi.csv', 'gdp.csv', 'life_expectancy.csv', 'population.csv', 'unemployment.csv']
-    output_dir = 'data/cleaned'
-    os.makedirs(output_dir, exist_ok=True)
-
-    for file in wb_files:
-        file_path = f'data/raw/{file}'
-        if os.path.exists(file_path):
-            try:
-                df = pd.read_csv(file_path)
-                df = df.dropna() # Hapus baris kosong
-                df = df.drop_duplicates() # Hapus duplikat
-                
-                output_path = f'{output_dir}/cleaned_{file}'
-                df.to_csv(output_path, index=False)
-                print(f"✅ Data {file} berhasil dibersihkan.")
-            except Exception as e:
-                print(f"❌ Error saat memproses {file}: {e}")
-        else:
-            print(f"⚠️ File {file} belum ada, dilewati.")
-    print("\nProses cleaning data World Bank selesai!")
+    # Agregasi: Ambil rata-rata harga pangan per tahun
+    df_avg = df.groupby('tahun')['nilai'].mean().reset_index()
+    
+    # Rename kolom hasil akhir
+    df_avg = df_avg.rename(columns={'nilai': 'nilai_harga_pangan'})
+    df_avg['tahun'] = df_avg['tahun'].astype(int)
+    
+    output_path = os.path.join(CLEANED_DIR, f'cleaned_{file_name}')
+    df_avg.to_csv(output_path, index=False)
+    print(f"Berhasil agregasi harga pangan ke: {output_path}")
 
 if __name__ == "__main__":
-    print("=== MEMULAI PIPELINE DATA CLEANING (TAHAP 3) ===\n")
-    clean_pihps_data()
-    clean_worldbank_data()
-    print("\n=== SEMUA DATA BERHASIL DIBERSIHKAN ===")
+    # List file standar
+    files = {
+        'cpi.csv': 'cpi',
+        'gdp.csv': 'gdp',
+        'life_expectancy.csv': 'life_expectancy',
+        'population.csv': 'population',
+        'unemployment.csv': 'unemployment'
+    }
+    
+    # Jalankan proses pembersihan
+    for file, name in files.items():
+        clean_standard_data(file, name)
+        
+    clean_food_price_data()
+    print("\n[DONE] Semua data di folder RAW telah dibersihkan dan dipindah ke folder CLEANED.")
