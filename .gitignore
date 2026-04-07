@@ -27,6 +27,7 @@ __marimo__/
 # Abaikan data mentah agar tidak memberatkan GitHub
 data/raw/
 data/cleaned/
+data/final/
 
 # Abaikan file cache sistem operasi (terutama jika ada yang pakai Mac)
 .DS_Store
