@@ -172,6 +172,3 @@ git commit -m "Update README with setup instructions"
 
 
 *Last Updated: April 2026*
-```
-
-**Selesai!** 😊🔥
