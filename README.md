@@ -1,17 +1,17 @@
 
-# 📊 PROYEK 1 BIG DATA - COLLECTING DATA
+# PROYEK 1 BIG DATA - COLLECTING DATA
 
 **Repository:** https://github.com/ishmahsalter/bigdata-project
 
 ---
 
-## 📋 DESKRIPSI PROYEK
+## DESKRIPSI PROYEK
 
 Proyek ini bertujuan untuk mengumpulkan data harga pangan dari 34 provinsi di Indonesia (sumber PIHPS) dan data makro ekonomi Indonesia (sumber World Bank API). Data yang terkumpul akan diproses menggunakan PySpark untuk analisis lebih lanjut.
 
 ---
 
-## 👥 ANGGOTA KELOMPOK
+## ANGGOTA KELOMPOK
 
 | No | Nama | NIM | Tugas |
 |----|------|-----|-------|
@@ -25,7 +25,7 @@ Proyek ini bertujuan untuk mengumpulkan data harga pangan dari 34 provinsi di In
 
 ---
 
-## 📁 STRUKTUR FOLDER
+## STRUKTUR FOLDER
 
 ```
 bigdata-project/
@@ -57,7 +57,7 @@ bigdata-project/
 
 ---
 
-## 🛠️ LANGKAH PERSIAPAN (SETUP)
+## LANGKAH PERSIAPAN (SETUP)
 
 Ikuti langkah-langkah di bawah ini untuk memulai kolaborasi di lokal komputer masing-masing:
 
@@ -93,7 +93,7 @@ pip install -r requirements.txt
 
 ---
 
-## 📋 PEMBAGIAN TUGAS ANGGOTA
+## PEMBAGIAN TUGAS ANGGOTA
 
 | Nama | Target Folder | File Output | Deskripsi Tugas |
 |------|---------------|-------------|-----------------|
@@ -107,7 +107,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 WORKFLOW KERJA (GIT)
+## WORKFLOW KERJA (GIT)
 
 Agar kode tidak berantakan, pastikan selalu menggunakan urutan ini:
 
@@ -135,7 +135,7 @@ git commit -m "Update README with setup instructions"
 
 ---
 
-## 📦 HASIL DATASET
+## HASIL DATASET
 
 | Dataset | Jumlah Records | Periode | Provinsi | Format |
 |---------|----------------|---------|----------|--------|
@@ -153,7 +153,7 @@ git commit -m "Update README with setup instructions"
 
 ---
 
-## ⚠️ CATATAN PENTING
+## CATATAN PENTING
 
 1. **Selalu `git pull` sebelum mulai koding** untuk menghindari konflik
 2. **Test kode di lokal** sebelum di-push ke GitHub
@@ -163,7 +163,7 @@ git commit -m "Update README with setup instructions"
 
 ---
 
-## 📞 KONTAK TIM
+## KONTAK TIM
 
 | Nama | Peran |
 |------|-------|
