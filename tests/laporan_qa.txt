@@ -1,0 +1,45 @@
+============================================================
+LAPORAN QUALITY ASSURANCE (QA)
+Proyek 1: Collecting Data - Big Data B
+PJ: Andi Sophie Banuna Amrie (H071241022)
+Tanggal: 2026-04-08 09:08:12
+============================================================
+
+[1] VALIDASI SCHEMA
+  Kolom yang diharapkan : ['tanggal', 'bulan', 'tahun', 'price_type', 'province', 'category', 'commodity', 'price']
+  Kolom yang ditemukan  : ['tanggal', 'bulan', 'tahun', 'price_type', 'province', 'category', 'commodity', 'price']
+  Kolom hilang          : Tidak ada
+  Status                : PASS
+
+[2] MISSING VALUES & DUPLIKAT
+  Total missing values  : 0
+  Total duplikat        : 0
+  Status missing        : PASS
+  Status duplikat       : PASS
+
+[3] VALIDASI ISI DATA
+  Provinsi tidak valid  : Tidak ada
+  Price type tidak valid: Tidak ada
+  Status                : PASS
+
+[4] KONSISTENSI DATA
+  Total records         : 164236
+  DKI Jakarta: 47875 records
+  Bali: 56057 records
+  Sumatera Utara: 60304 records
+  Outlier harga         : 20221
+  Status                : PASS
+
+============================================================
+RINGKASAN HASIL QA
+============================================================
+  Test 1 - Validasi Schema      : PASS ✅
+  Test 2 - Missing & Duplikat   : PASS ✅
+  Test 3 - Validasi Isi Data    : PASS ✅
+  Test 4 - Konsistensi Data     : PASS ✅
+  Test 5 - PySpark Ingestion    : PASS ✅
+  Test 6 - Validasi World Bank  : PASS ✅ (5 file, 0 missing values)
+============================================================
+CATATAN: Script ini dijalankan menggunakan data asli.
+Total 164.236 records dari 3 provinsi (DKI Jakarta, Bali, Sumatera Utara).
+============================================================
